@@ -56,6 +56,20 @@ nix develop .#riscv-os
 nix develop
 ```
 
+### 退出开发环境
+
+从 `nix develop` 环境中退出：
+
+```bash
+# 方法1: 使用 exit 命令
+exit
+
+# 方法2: 使用快捷键
+# 按 Ctrl + D
+```
+
+退出后，所有环境变量和工具路径会自动恢复到之前的状态。
+
 ### 项目专用环境
 
 在项目目录中创建 `flake.nix`：
