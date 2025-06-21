@@ -84,5 +84,5 @@ sudo nixos-rebuild switch --flake .#nixos
 
 ## 版本信息
 
-- NixOS版本：24.11
+- NixOS版本：25.05
 - 创建日期：2025年5月
