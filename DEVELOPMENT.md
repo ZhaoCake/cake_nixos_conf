@@ -18,6 +18,7 @@ development = {
   nodejs.enable = true;     # Node.js 开发环境
   rust.enable = true;       # Rust 开发环境
   hardware.enable = true;   # 硬件开发环境（Verilog等）
+  riscv-os.enable = true;   # RISC-V 操作系统开发环境
 };
 ```
 
@@ -47,6 +48,9 @@ nix develop .#rust
 
 # 进入硬件开发环境
 nix develop .#hardware
+
+# 进入 RISC-V 操作系统开发环境
+nix develop .#riscv-os
 
 # 进入默认环境（包含所有工具）
 nix develop
@@ -113,3 +117,43 @@ nix develop
 2. 在 `home-modules/development.nix` 中导入
 3. 在 `flake.nix` 的 `devShells` 中添加对应环境
 4. 更新此文档
+
+## 环境继承和叠加
+
+### 模块继承
+开发环境可以相互继承和叠加。例如：
+
+- `riscv-os` 环境包含基础的 C/C++ 工具，并添加 RISC-V 特定工具
+- 可以同时启用多个环境，它们会合并工具包
+
+### 最佳实践
+
+1. **基础环境**: 启用你经常使用的开发环境（如 `c-cpp.enable = true`）
+2. **专用环境**: 为特定项目使用 devShells（如 `nix develop .#riscv-os`）
+3. **项目隔离**: 在项目目录中创建专用的 `flake.nix`
+
+### Cake408OS 项目示例
+
+对于你的 Cake408OS 项目，推荐使用方式：
+
+1. **全局启用基础环境**（在 home.nix 中）:
+   ```nix
+   development = {
+     c-cpp.enable = true;
+     riscv-os.enable = true;
+   };
+   ```
+
+2. **项目专用环境**：
+   ```bash
+   # 在项目目录中
+   cp /home/nixos/cake_nixos_conf/templates/cake408os-flake.nix ./flake.nix
+   nix develop  # 进入项目专用环境
+   ```
+
+3. **快速开发**：
+   ```bash
+   # 从任何地方进入 RISC-V 环境
+   cd /home/nixos/cake_nixos_conf
+   nix develop .#riscv-os
+   ```

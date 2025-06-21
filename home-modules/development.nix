@@ -9,6 +9,7 @@
     ./development/nodejs.nix
     ./development/rust.nix
     ./development/hardware.nix
+    ./development/riscv-os.nix
   ];
 
   # 可以在这里添加一些全局开发相关的配置

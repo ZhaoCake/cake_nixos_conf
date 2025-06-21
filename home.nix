@@ -26,7 +26,8 @@
     # python.enable = true;   # Python 开发环境
     # nodejs.enable = true;   # Node.js 开发环境
     # rust.enable = true;     # Rust 开发环境
-    hardware.enable = true;   # 硬件开发环境（Verilog等）
+    # hardware.enable = true;   # 硬件开发环境（Verilog等）
+    # riscv-os.enable = true;   # RISC-V 操作系统开发环境
   };
 
   # Home Manager版本锁定

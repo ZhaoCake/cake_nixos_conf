@@ -11,10 +11,10 @@
     userEmail = "zhaocake@foxmail.com";
     
     # 可以添加更多Git配置，例如：
-    # extraConfig = {
-    #   init.defaultBranch = "main";
-    #   pull.rebase = false;
-    #   core.editor = "vim";
-    # };
+    extraConfig = {
+      init.defaultBranch = "main";
+      # pull.rebase = false;
+      core.editor = "vim";
+    };
   };
 }

@@ -24,6 +24,8 @@
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
+    # 导入共享的开发包集合
+    devPackages = import ./lib/dev-packages.nix { inherit pkgs; };
   in
   {
     # NixOS 系统配置
@@ -62,14 +64,7 @@
       # C/C++ 开发环境
       cpp = pkgs.mkShell {
         name = "cpp-dev-environment";
-        buildInputs = with pkgs; [
-          gcc
-          gdb
-          cmake
-          gnumake
-          valgrind
-          clang-tools
-        ];
+        buildInputs = devPackages.cpp;
         shellHook = ''
           echo "🚀 C/C++ 开发环境已激活"
           echo "可用工具: gcc, g++, cmake, make, gdb, valgrind"
@@ -79,14 +74,7 @@
       # Python 开发环境
       python = pkgs.mkShell {
         name = "python-dev-environment";
-        buildInputs = with pkgs; [
-          python3
-          python3Packages.pip
-          python3Packages.virtualenv
-          python3Packages.black
-          python3Packages.pylint
-          python3Packages.pytest
-        ];
+        buildInputs = devPackages.python;
         shellHook = ''
           echo "🐍 Python 开发环境已激活"
           echo "可用工具: python3, pip, virtualenv, black, pylint, pytest"
@@ -96,15 +84,7 @@
       # Node.js 开发环境
       nodejs = pkgs.mkShell {
         name = "nodejs-dev-environment";
-        buildInputs = with pkgs; [
-          nodejs
-          npm
-          yarn
-          pnpm
-          nodePackages.typescript
-          nodePackages.eslint
-          nodePackages.prettier
-        ];
+        buildInputs = devPackages.nodejs;
         shellHook = ''
           echo "📦 Node.js 开发环境已激活"
           echo "可用工具: node, npm, yarn, pnpm, tsc, eslint, prettier"
@@ -114,13 +94,7 @@
       # Rust 开发环境
       rust = pkgs.mkShell {
         name = "rust-dev-environment";
-        buildInputs = with pkgs; [
-          rustc
-          cargo
-          rustfmt
-          clippy
-          rust-analyzer
-        ];
+        buildInputs = devPackages.rust;
         shellHook = ''
           echo "🦀 Rust 开发环境已激活"
           echo "可用工具: rustc, cargo, rustfmt, clippy, rust-analyzer"
@@ -130,37 +104,69 @@
       # 硬件开发环境
       hardware = pkgs.mkShell {
         name = "hardware-dev-environment";
-        buildInputs = with pkgs; [
-          verilator
-          # 可以添加其他硬件开发工具
-        ];
+        buildInputs = devPackages.hardware;
         shellHook = ''
           echo "⚡ 硬件开发环境已激活"
           echo "可用工具: verilator"
         '';
       };
 
-      # 默认开发环境（包含所有工具）
+      # RISC-V 操作系统开发环境
+      riscv-os = pkgs.mkShell {
+        name = "riscv-os-dev-environment";
+        buildInputs = devPackages.riscv-os;
+        
+        # 设置环境变量和别名
+        shellHook = ''
+          echo "🚀 RISC-V 操作系统开发环境已激活"
+          echo ""
+          echo "🔧 可用工具:"
+          echo "  • RISC-V GCC: riscv64-unknown-elf-gcc, riscv32-unknown-elf-gcc"
+          echo "  • QEMU: qemu-system-riscv32, qemu-system-riscv64"
+          echo "  • 调试: gdb"
+          echo "  • 构建: make, cmake"
+          echo ""
+          echo "🎯 针对 Cake408OS 项目:"
+          echo "  make all    - 构建内核"
+          echo "  make run    - 运行系统"
+          echo "  make debug  - 调试模式"
+          echo ""
+          
+          # 设置交叉编译环境变量
+          export CROSS_COMPILE="riscv64-unknown-elf-"
+          export RISCV32_CROSS_COMPILE="riscv32-unknown-elf-"
+          
+          # 添加工具链到 PATH
+          export PATH="${pkgs.pkgsCross.riscv64.buildPackages.gcc}/bin:$PATH"
+          export PATH="${pkgs.pkgsCross.riscv32.buildPackages.gcc}/bin:$PATH"
+          
+          # 创建便捷别名
+          alias riscv-gcc="riscv64-unknown-elf-gcc"
+          alias riscv32-gcc="riscv32-unknown-elf-gcc"
+          alias riscv-gdb="riscv64-unknown-elf-gdb"
+          alias qemu-riscv32="qemu-system-riscv32"
+          
+          echo "✅ 环境变量已设置:"
+          echo "  CROSS_COMPILE=$CROSS_COMPILE"
+          echo "  RISCV32_CROSS_COMPILE=$RISCV32_CROSS_COMPILE"
+        '';
+      };
+
+      # 默认开发环境（包含常用工具的组合）
       default = pkgs.mkShell {
         name = "full-dev-environment";
-        buildInputs = with pkgs; [
-          # 从各个开发环境中选择常用工具
-          gcc gdb cmake
-          python3 python3Packages.pip
-          nodejs npm
-          rustc cargo
-          verilator
-        ];
+        buildInputs = devPackages.cpp ++ devPackages.python ++ devPackages.nodejs ++ devPackages.rust ++ devPackages.hardware;
         shellHook = ''
           echo "🛠️  完整开发环境已激活"
           echo "包含: C/C++, Python, Node.js, Rust, 硬件开发工具"
           echo ""
           echo "使用专用环境:"
-          echo "  nix develop .#cpp     - C/C++ 开发"
-          echo "  nix develop .#python  - Python 开发"
-          echo "  nix develop .#nodejs  - Node.js 开发"
-          echo "  nix develop .#rust    - Rust 开发"
+          echo "  nix develop .#cpp      - C/C++ 开发"
+          echo "  nix develop .#python   - Python 开发"
+          echo "  nix develop .#nodejs   - Node.js 开发"
+          echo "  nix develop .#rust     - Rust 开发"
           echo "  nix develop .#hardware - 硬件开发"
+          echo "  nix develop .#riscv-os - RISC-V 操作系统开发"
         '';
       };
     };
