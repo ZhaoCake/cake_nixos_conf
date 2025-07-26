@@ -10,6 +10,7 @@
     tmux
     fish
     htop
+    direnv
   ];
 
   # 环境变量设置
@@ -32,4 +33,7 @@
     enable = true;
     allowedTCPPorts = [ 22 ];  # SSH端口
   };
+
+  # direnv的shell集成
+  programs.direnv.enable = true;
 }
